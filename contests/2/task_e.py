@@ -1,12 +1,15 @@
 import json
 import copy
 import sys
-from typing import TypeAlias
 
-RecursiveDict: TypeAlias = dict[str, 'int | RecursiveDict']
+RecursiveDict = dict[str, 'int | RecursiveDict']
 
 
-def modify_config(original_config: RecursiveDict, modifications: list[str]) -> list[RecursiveDict]:
+def modify_config(
+        original_config: RecursiveDict,
+        modifications: list[str]
+) -> list[RecursiveDict]:
+
     modified_configs: list[RecursiveDict] = []
 
     for modification in modifications:
@@ -17,7 +20,9 @@ def modify_config(original_config: RecursiveDict, modifications: list[str]) -> l
 
         current_dict: RecursiveDict = current_config
         for key in keys[:-1]:
-            current_dict = current_dict.setdefault(key, {})
+            if key not in current_dict:
+                current_dict[key] = {}
+            current_dict = current_dict[key]
 
         current_dict[keys[-1]] = int(value)
         modified_configs.append(current_config)

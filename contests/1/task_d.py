@@ -1,11 +1,11 @@
-import sys
 import math
+import sys
 
 
-def calc(*args: int, **kwargs: dict[str, int]) -> float:
+def calc(*args: int, **kwargs: int) -> float:
     base = kwargs.get('log', 0)
     lcm = math.lcm(*args)
-    if isinstance(base, (int, float)) and base != 0:
+    if base != 0:
         return math.log(lcm, float(base))
     else:
         return lcm
