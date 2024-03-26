@@ -15,15 +15,13 @@ class University:
     def enroll_student(self, name: str, age: int, course: int) -> None:
         if name in self._students:
             raise RuntimeError(f'Student with name {name} is already enrolled')
-        else:
-            student = Student(name, age, course)
-            self._students[name] = student
+        student = Student(name, age, course)
+        self._students[name] = student
 
     def expell_student(self, name: str) -> None:
         if name not in self._students:
             raise KeyError(f'Student with name {name} is not enrolled')
-        else:
-            self._students.pop(name)
+        self._students.pop(name)
 
     def get_students(self) -> list[Student]:
         return sorted(self._students.values(), key=lambda x: x.name)
