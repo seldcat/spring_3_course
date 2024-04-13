@@ -30,8 +30,7 @@ class StrategyIncome(StrategyBase):
         return (obj1.income / obj1.cost) >= (obj2.income / obj2.cost)
 
     def second_compare(self, obj1: Object, obj2: Object) -> bool:
-        strategy = StrategySquare()
-        return strategy.compare(obj1, obj2)
+        return (obj1.square / obj1.cost) >= (obj2.square / obj2.cost)
 
 
 class StrategySquare(StrategyBase):
@@ -39,8 +38,7 @@ class StrategySquare(StrategyBase):
         return (obj1.square / obj1.cost) >= (obj2.square / obj2.cost)
 
     def second_compare(self, obj1: Object, obj2: Object) -> bool:
-        strategy = StrategyIncome()
-        return strategy.compare(obj1, obj2)
+        return (obj1.income / obj1.cost) >= (obj2.income / obj2.cost)
 
 
 class Context:
@@ -55,25 +53,33 @@ class Context:
         self.strategy = strategy
 
     def build_objects(self) -> None:
-        reasonable_objects = self._find_max_objects(self.strategy.compare, self.objects)
+        affordable_objects = list(filter(lambda obj: obj.cost <= self.budget, self.objects))
+        if not affordable_objects:
+            return
+
+        reasonable_objects = self._find_max_objects(self.strategy.compare, affordable_objects)
 
         if len(reasonable_objects) > 1:
             reasonable_objects = self._find_max_objects(self.strategy.second_compare, reasonable_objects)
 
         selected_object = self.strategy.select(reasonable_objects)
 
-        self.budget = self.budget - selected_object.cost + selected_object.income
+        self.budget += selected_object.income - selected_object.cost + self.total_income
         self.total_income += selected_object.income
         self.total_square += selected_object.square
 
-        print(f'Selected: {str(selected_object)}, Money: {self.budget}, Income: {self.total_income}, Square: {self.total_square}')
+        print(f'Selected: {str(selected_object)},',
+              f'Money: {self.budget},',
+              f'Income: {self.total_income}, Square: {self.total_square}')
+
+        self.objects.remove(selected_object)
 
     def _find_max_objects(self, compare_method: Callable[[Object, Object], bool], objects: list[Object]) -> list[Object]:
         current_max = objects[0]
-        for obj in self.objects:
-            if (compare_method(obj, current_max) and obj.cost <= self.budget):
+        for obj in objects:
+            if compare_method(obj, current_max):
                 current_max = obj
-        return list(filter(lambda obj: obj == current_max, objects))
+        return list(filter(lambda obj: compare_method(obj, current_max), objects))
 
 
 def main() -> None:
